@@ -3,35 +3,40 @@ import {AxiosError} from "axios";
 
 import {NoteType} from "@/lib";
 import {noteService} from "@/services";
+import {PublicUserData} from "@clerk/types";
 
 interface IInitialState {
-	userId: string | null;
+	user: PublicUserData | null;
 	notes: NoteType[];
 	note: NoteType | null;
 	loading: boolean;
-	errors: boolean;
+	errors: boolean | string;
 }
 
-interface ErrorResponseType {
-	message: string;
-	status: number;
-}
+type createdNoteType = {
+	noteId: number;
+	noteName: string;
+	createdAt: Date;
+};
 
 const initialState: IInitialState = {
-	userId: null,
+	user: null,
 	notes: [],
 	note: null,
 	loading: false,
 	errors: false,
 };
 
-const setUserId = createAsyncThunk<string, void>(
+const setUserInfo = createAsyncThunk<PublicUserData, void>(
 	"noteSlice/setUserId",
 	async (_, {rejectWithValue}) => {
 		try {
-			const {data} = await noteService.getUserId();
+			const {data} = await noteService.getUserInfo();
 			return data;
 		} catch (err) {
+			alert(
+				"Error while getting user info, please reload page and try again!",
+			);
 			const typedError = err as AxiosError;
 			return rejectWithValue(typedError.response?.data);
 		}
@@ -51,12 +56,29 @@ const getAllNotes = createAsyncThunk<NoteType[], void>(
 	},
 );
 
-const getNoteById = createAsyncThunk<NoteType, number>(
-	"noteSlice/setUserId",
-	async (id, {rejectWithValue}) => {
+const getNoteById = createAsyncThunk<NoteType, string>(
+	"noteSlice/getNoteById",
+	async (id: string, {rejectWithValue}) => {
 		try {
 			const {data} = await noteService.getNoteById(id);
 			return data;
+		} catch (err) {
+			const typedError = err as AxiosError;
+			return rejectWithValue(typedError.response?.data);
+		}
+	},
+);
+
+const createNote = createAsyncThunk<createdNoteType, string>(
+	"noteSlice/createNote",
+	async (noteName: string, {rejectWithValue}) => {
+		try {
+			const {data} = await noteService.createNote(noteName);
+			return {
+				noteId: data.noteId,
+				noteName: noteName,
+				createdAt: data.createdAt,
+			};
 		} catch (err) {
 			const typedError = err as AxiosError;
 			return rejectWithValue(typedError.response?.data);
@@ -85,15 +107,53 @@ const noteSlice = createSlice({
 			})
 
 			// Set UserId;
-			.addCase(setUserId.pending, (state) => {
+			.addCase(setUserInfo.pending, (state) => {
 				state.loading = true;
 				state.errors = false;
 			})
-			.addCase(setUserId.fulfilled, (state, action) => {
+			.addCase(setUserInfo.fulfilled, (state, action) => {
 				state.loading = false;
-				state.userId = action.payload;
+				state.user = action.payload;
 			})
-			.addCase(setUserId.rejected, (state) => {
+			.addCase(setUserInfo.rejected, (state) => {
+				state.loading = false;
+				state.errors = true;
+			})
+
+			// Get Note by ID;
+			.addCase(getNoteById.pending, (state) => {
+				state.loading = true;
+				state.errors = false;
+			})
+			.addCase(getNoteById.fulfilled, (state, action) => {
+				state.loading = false;
+				state.note = action.payload;
+			})
+			.addCase(getNoteById.rejected, (state) => {
+				state.loading = false;
+				state.errors = true;
+			})
+
+			// Create Note;
+			.addCase(createNote.pending, (state) => {
+				state.loading = true;
+				state.errors = false;
+			})
+			.addCase(createNote.fulfilled, (state, action) => {
+				const newNote = {
+					id: action.payload.noteId,
+					userId: state.user?.userId || "",
+					name: action.payload.noteName,
+					editorState: null,
+					imageUrl: null,
+					createdAt: action.payload.createdAt,
+				};
+				if (state.user && state.user?.userId) {
+					state.notes.push(newNote);
+					state.note = newNote;
+				}
+			})
+			.addCase(createNote.rejected, (state) => {
 				state.loading = false;
 				state.errors = true;
 			}),
@@ -106,8 +166,9 @@ const {
 
 const noteActions = {
 	getAllNotes,
-	setUserId,
-	getNoteById
+	setUserInfo,
+	getNoteById,
+	createNote
 };
 
 export {noteReducer, noteActions};

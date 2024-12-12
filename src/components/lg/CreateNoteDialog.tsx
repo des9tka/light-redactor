@@ -1,40 +1,39 @@
 "use client"
-import axios from "axios"
 import { useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { Plus, Loader } from "lucide-react"
 
 import { Input, Button, Dialog, DialogHeader, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components"
 import { useRouter } from "next/navigation"
+import { noteActions, useAppDispatch, useAppSelector } from "@/redux"
 
 
-function CreateNoteDialog() {
-    const [input, setInput] = useState("");
+function CreateNoteDialog({ openSubmit, setOpenSubmit }: { openSubmit: boolean, setOpenSubmit: Function }) {
+    const [inputName, setInputName] = useState("");
     const [show, setShow] = useState(true);
     const [open, setOpen] = useState(false);
     const router = useRouter();
 
+    const dispatch = useAppDispatch();
+
     const createNoteBook = useMutation({
         mutationFn: async () => {
-            const response = await axios.post("api/createNote", {
-                name: input
-            })
-            return response.data;
+            dispatch(noteActions.createNote(inputName))
         }
     })
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (!input) {
+        if (!inputName) {
             window.alert('Please enter a name for new NoteBook!');
             return;
         }
 
         try {
             createNoteBook.mutate(undefined, {
-                onSuccess: ({ note_id }) => {
-                    router.push(`/noteBook/${note_id}`);
+                onSuccess: () => {
+                    setOpenSubmit(!openSubmit);
                     setShow(false);
                 },
                 onError: (error) => {
@@ -64,7 +63,7 @@ function CreateNoteDialog() {
                         {!createNoteBook.isPending ?
                             'New NoteBook' :
                             (<div className="flex">
-                                Creating <span className="mx-1 text-purple-500">"{input}"</span> NoteBook...
+                                Creating <span className="mx-1 text-purple-500">"{inputName}"</span> NoteBook...
                                 <Loader className="animate-spin ml-2" />
                             </div>)}
                     </DialogTitle>
@@ -73,7 +72,7 @@ function CreateNoteDialog() {
                     </DialogDescription>
 
                     <form className="w-full" onSubmit={handleSubmit}>
-                        <Input onChange={(e) => setInput(e.target.value)} className="w-full bg-slate-200 shadow-xl h-[40px] rounded pl-2 mb-2" placeholder="Name..." />
+                        <Input onChange={(e) => setInputName(e.target.value)} className="w-full bg-slate-200 shadow-xl h-[40px] rounded pl-2 mb-2" placeholder="Name..." />
                         <div className="flex justify-start w-full">
                             <Button type="reset" variant={"secondary"} onClick={() => setOpen(!open)} className="hover:text-purple-800 rounded" disabled={createNoteBook.isPending || !show}>
                                 Cancel

@@ -1,4 +1,5 @@
 export * from "./CreateNoteDialog";
+export * from "./SubmitDialog";
 export * from "./QueryProvider";
 export * from "./TipTapEditor";
 export * from "./TipTapHeaderBar";

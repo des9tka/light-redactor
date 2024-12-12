@@ -31,6 +31,7 @@ const TipTapEditor = ({ note }: Props) => {
         autofocus: true,
         extensions: [StarterKit],
         content: editorState,
+        immediatelyRender: false,
         onUpdate: ({ editor }) => {
             setEditorState(editor.getHTML())
         }

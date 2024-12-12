@@ -8,11 +8,12 @@ import { noteActions } from './noteSlice';
 const StoreSetupProvider = ({ children }: { children: React.ReactNode }) => {
 
     const dispatch = useAppDispatch();
-    const { userId } = useAppSelector(state => state.noteReducer);
+    const { user } = useAppSelector(state => state.noteReducer);
 
     useEffect(() => {
-        if (!userId) {
-            dispatch(noteActions.setUserId())
+        if (!user) {
+            dispatch(noteActions.setUserInfo())
+            console.log("Setuped!");
         }
     }, [])
 

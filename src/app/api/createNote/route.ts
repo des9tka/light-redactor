@@ -11,21 +11,23 @@ export async function POST(req: Request) {
 
 	if (!userId) {
 		return new NextResponse("Unauthorized", {status: 401});
-	}	
+	}
 
-	const body = await req.json();
+	const {name} = await req.json();
 
-	const note_ids = await db
+	const note_info = await db
 		.insert($notes)
 		.values({
-			name: body.name,
+			name: name,
 			userId: userId,
 		})
 		.returning({
 			insertedId: $notes.id,
+			createdAt: $notes.createdAt,
 		});
 
 	return NextResponse.json({
-		note_id: note_ids[0].insertedId,
+		noteId: note_info[0].insertedId,
+		createdAt: note_info[0].createdAt,
 	});
 }

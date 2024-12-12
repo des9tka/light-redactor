@@ -39,7 +39,7 @@ const ImageCatcher = ({ note, userId }: { note: NoteType, userId: string }) => {
 
     return (
         <div className='justify-center flex'>
-            <img className="h-[100%]" src={(!note.imageUrl || !isExist) ? '/notesImages/note.png' : `/notesImages/${userId}/${note.imageUrl}`} alt={note.name} onClick={() => imageClick()} />
+            <img className="h-[100%]" src={(!note.imageUrl || !isExist || !userId) ? '/notesImages/note.png' : `/notesImages/${userId}/${note.imageUrl}`} alt={note.name} onClick={() => imageClick()} />
             <input
                 type="file"
                 id='inputFile'

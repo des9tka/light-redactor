@@ -2,12 +2,15 @@
 import Link from 'next/link';
 import { UserButton } from '@clerk/nextjs';
 import { ArrowBigLeft } from 'lucide-react';
+import { redirect } from 'next/navigation'
 
 import { Button, Notes } from '@/components';
-import { noteActions, useAppDispatch, useAppSelector } from '@/redux';
-import { useEffect } from 'react';
+import { useAppSelector } from '@/redux';
+import { useState } from 'react';
 
 const DashPoardPage = () => {
+
+    const { user } = useAppSelector(state => state.noteReducer);
 
     return (
         <div className="w-[100vw] h-[100vh] flex justify-center lg:mt-[15vh] md:mt-[10vh]">

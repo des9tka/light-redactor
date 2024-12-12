@@ -1,9 +1,9 @@
 export const baseURL = "/api/";
 
 export const noteUrls = {
-	getUserId: () => "getUserId",
+	getUserInfoUrl: () => "getUserInfo",
 	getAllNotesUrl: () => `getAllNotes`,
-	getNoteByIdUrl: (id: number) => `getNoteById/${id}`,
+	getNoteByIdUrl: (id: string) => `getNoteById/${id}`,
 	createNoteUrl: () => `createNote`,
 	saveNoteUrl: () => `saveNote`,
 	deleteNoteUrl: (id: number) => `deleteNote/${id}`,

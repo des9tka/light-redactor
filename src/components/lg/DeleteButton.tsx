@@ -4,7 +4,7 @@ import React from 'react'
 import { Trash } from "lucide-react"
 import axios from 'axios'
 
-const DeleteButton = ({ noteId, noteImgUrl }: { noteId: number, noteImgUrl: string | null }) => {
+const DeleteButton = ({ noteId, noteImgUrl }: { noteId: string, noteImgUrl: string | null }) => {
 
     const deleteNote = async () => {
         const dataUrl = noteImgUrl ? noteImgUrl : 'null';

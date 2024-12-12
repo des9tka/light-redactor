@@ -2,18 +2,25 @@ import {NoteType} from "@/lib";
 import {AxiosRes, axiosService} from "./axiosService";
 
 import {noteUrls} from "@/config/urls";
+import { PublicUserData } from "@clerk/types";
+
+type CreateNoteType = {
+	noteId: number,
+	createdAt: Date
+}
 
 const noteService = {
-	getUserId: (): AxiosRes<string> => axiosService.get(noteUrls.getUserId()),
+	getUserInfo: (): AxiosRes<PublicUserData> =>
+		axiosService.get(noteUrls.getUserInfoUrl()),
 
 	getAllNotes: (): AxiosRes<NoteType[]> =>
 		axiosService.get(noteUrls.getAllNotesUrl()),
 
-	getNoteById: (id: number): AxiosRes<NoteType> =>
+	getNoteById: (id: string): AxiosRes<NoteType> =>
 		axiosService.get(noteUrls.getNoteByIdUrl(id)),
 
-	createNote: (note: NoteType): AxiosRes<void> =>
-		axiosService.post(noteUrls.createNoteUrl(), note),
+	createNote: (name: string): AxiosRes<CreateNoteType> =>
+		axiosService.post(noteUrls.createNoteUrl(), name),
 
 	saveNote: (note: NoteType): AxiosRes<void> =>
 		axiosService.post(noteUrls.saveNoteUrl(), note),

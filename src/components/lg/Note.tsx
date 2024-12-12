@@ -11,7 +11,7 @@ const Note = ({ note, userId }: { note: NoteType, userId: string }) => {
             </a>
 
             <div className='w-full justify-center flex h-[50%] mt-4'>
-                <ImageCatcher note={note} userId={userId || ''} />
+                <ImageCatcher note={note} userId={userId} />
             </div>
 
             <p className='text-purple-500 font-bold text-center'>
