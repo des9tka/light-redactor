@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import React, { useEffect } from 'react'
 import { ArrowLeftSquare, FileWarningIcon, Loader } from 'lucide-react'
+import { useRouter } from "next/navigation"
 
 import { TipTapEditor, DeleteButton } from '@/components'
 import { noteActions, useAppDispatch, useAppSelector } from '@/redux'
@@ -18,9 +19,14 @@ function NoteBook({ params: { noteId } }: Props) {
 
     const { user, note, errors, loading } = useAppSelector(state => state.noteReducer);
     const dispatch = useAppDispatch();
+    const router = useRouter();
 
     useEffect(() => {
-        if (!note) dispatch(noteActions.getNoteById(noteId));
+        if (!note || parseInt(noteId) !== note.id) {
+            console.log('Load note from server!!!');
+            dispatch(noteActions.getNoteById(noteId));
+        }
+
     }, [])
 
     const nameExp = (user?.firstName ? user?.firstName : "") + (user?.lastName ? user?.lastName : "")
@@ -61,10 +67,10 @@ function NoteBook({ params: { noteId } }: Props) {
                         </span>}
 
                         <div className='w-full flex justify-center'>
-                            <Link href={'/dashboard'} className='text-xl h-[45px] w-[100px] flex p-2 rounded shadow-2xl hover:border hover:border-purple-500 hover:bg-wh bg-purple-300 hover:text-purple-500 text-white font-semibold text-center justify-center items-center'>
+                            <div onClick={() => router.push('/dashboard')} className='text-xl h-[45px] w-[100px] flex p-2 rounded shadow-2xl hover:border hover:border-purple-500 hover:bg-wh bg-purple-300 hover:text-purple-500 text-white font-semibold text-center justify-center items-center'>
                                 <ArrowLeftSquare className='pt-1' />
                                 Back
-                            </Link>
+                            </div>
                         </div>
                     </div>
                 </div>

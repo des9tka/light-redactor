@@ -5,7 +5,7 @@ import { Plus, Loader } from "lucide-react"
 
 import { Input, Button, Dialog, DialogHeader, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components"
 import { useRouter } from "next/navigation"
-import { noteActions, useAppDispatch, useAppSelector } from "@/redux"
+import { noteActions, useAppDispatch } from "@/redux"
 
 
 function CreateNoteDialog({ openSubmit, setOpenSubmit }: { openSubmit: boolean, setOpenSubmit: Function }) {
@@ -18,7 +18,10 @@ function CreateNoteDialog({ openSubmit, setOpenSubmit }: { openSubmit: boolean, 
 
     const createNoteBook = useMutation({
         mutationFn: async () => {
-            dispatch(noteActions.createNote(inputName))
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+            await dispatch(noteActions.createNote(inputName));
+            setOpenSubmit(true);
+            setShow(false);
         }
     })
 
@@ -32,12 +35,7 @@ function CreateNoteDialog({ openSubmit, setOpenSubmit }: { openSubmit: boolean, 
 
         try {
             createNoteBook.mutate(undefined, {
-                onSuccess: () => {
-                    setOpenSubmit(!openSubmit);
-                    setShow(false);
-                },
-                onError: (error) => {
-                    console.error('Mutate Error: ' + error.message);
+                onError: () => {
                     window.alert('Failed to create new NoteBook! Please, try it later.');
                     setShow(false);
                     router.replace('/dashboard');

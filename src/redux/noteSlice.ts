@@ -2,11 +2,10 @@ import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {AxiosError} from "axios";
 
 import {NoteType} from "@/lib";
-import {noteService} from "@/services";
-import {PublicUserData} from "@clerk/types";
+import {noteService, SimplifiedClerkUser} from "@/services";
 
 interface IInitialState {
-	user: PublicUserData | null;
+	user: SimplifiedClerkUser | null;
 	notes: NoteType[];
 	note: NoteType | null;
 	loading: boolean;
@@ -27,16 +26,13 @@ const initialState: IInitialState = {
 	errors: false,
 };
 
-const setUserInfo = createAsyncThunk<PublicUserData, void>(
+const setUserInfo = createAsyncThunk<SimplifiedClerkUser, void>(
 	"noteSlice/setUserId",
 	async (_, {rejectWithValue}) => {
 		try {
 			const {data} = await noteService.getUserInfo();
 			return data;
 		} catch (err) {
-			alert(
-				"Error while getting user info, please reload page and try again!",
-			);
 			const typedError = err as AxiosError;
 			return rejectWithValue(typedError.response?.data);
 		}
@@ -63,6 +59,8 @@ const getNoteById = createAsyncThunk<NoteType, string>(
 			const {data} = await noteService.getNoteById(id);
 			return data;
 		} catch (err) {
+			console.log(err);
+
 			const typedError = err as AxiosError;
 			return rejectWithValue(typedError.response?.data);
 		}
@@ -71,12 +69,12 @@ const getNoteById = createAsyncThunk<NoteType, string>(
 
 const createNote = createAsyncThunk<createdNoteType, string>(
 	"noteSlice/createNote",
-	async (noteName: string, {rejectWithValue}) => {
+	async (name: string, {rejectWithValue}) => {
 		try {
-			const {data} = await noteService.createNote(noteName);
+			const {data} = await noteService.createNote(name);
 			return {
 				noteId: data.noteId,
-				noteName: noteName,
+				noteName: name,
 				createdAt: data.createdAt,
 			};
 		} catch (err) {
@@ -140,18 +138,22 @@ const noteSlice = createSlice({
 				state.errors = false;
 			})
 			.addCase(createNote.fulfilled, (state, action) => {
-				const newNote = {
-					id: action.payload.noteId,
-					userId: state.user?.userId || "",
-					name: action.payload.noteName,
-					editorState: null,
-					imageUrl: null,
-					createdAt: action.payload.createdAt,
-				};
-				if (state.user && state.user?.userId) {
+				if (state.user) {
+					const newNote = {
+						id: action.payload.noteId,
+						userId: state.user.id,
+						name: action.payload.noteName,
+						editorState: "",
+						imageUrl: null,
+						createdAt: action.payload.createdAt,
+					};
+
 					state.notes.push(newNote);
 					state.note = newNote;
+				} else {
+					state.errors = "User ID was not provided!";
 				}
+				state.loading = false;
 			})
 			.addCase(createNote.rejected, (state) => {
 				state.loading = false;
@@ -168,7 +170,7 @@ const noteActions = {
 	getAllNotes,
 	setUserInfo,
 	getNoteById,
-	createNote
+	createNote,
 };
 
 export {noteReducer, noteActions};

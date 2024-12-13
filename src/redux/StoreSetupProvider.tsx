@@ -12,8 +12,7 @@ const StoreSetupProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         if (!user) {
-            dispatch(noteActions.setUserInfo())
-            console.log("Setuped!");
+            dispatch(noteActions.setUserInfo())            
         }
     }, [])
 

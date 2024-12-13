@@ -11,16 +11,16 @@ const Notes = () => {
     const dispatch = useAppDispatch();
     const { user, notes, note, loading, errors } = useAppSelector(state => state.noteReducer);
     const [openSubmit, setOpenSubmit] = useState(false);
-    const [rendered, setRendered] = useState(false)
+    const [rendered, setRendered] = useState(false);
 
     useEffect(() => {
         if (notes.length == 0) dispatch(noteActions.getAllNotes());
-        setRendered(true);
+        setRendered(true);        
     }, [])
 
     return (
         <div>
-            {errors && <div>Error while detch data: {errors}</div>}
+            {errors && <div>Error: {errors}</div>}
             {loading && <div className='text-center w-full flex justify-center font-semibold mt-10'>Loading...<Loader className='animate-spin' /></div>}
             {!loading && rendered && <div className='grid grid-cols-1 sm:grid-cols-2 xs:m-10 md:grid-cols-4 gap-2 mt-4'>
 
@@ -32,7 +32,7 @@ const Notes = () => {
                     <SubmitDialog noteId={note?.id || 0} openSubmit={openSubmit} setOpenSubmit={setOpenSubmit} />
                 </div>
 
-                {notes && notes.length > 0 && notes.map((note, index) => <Note key={index} note={note} userId={user?.userId || ''} />)}
+                {user && notes && notes.length > 0 && notes.map((note, index) => <Note key={index} note={note} userId={user.id} />)}
             </div>}
         </div>
     )

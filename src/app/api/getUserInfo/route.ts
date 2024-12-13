@@ -7,5 +7,5 @@ export async function GET(req: Request) {
 	if (userId) {
 		const userInfo = await clerk.users.getUser(userId);
 		return NextResponse.json(userInfo, {status: 200});
-	} else return NextResponse.json("User ID was not provided.", {status: 404});
+	} else return NextResponse.json("User ID was not provided or User is not authorized.", {status: 404});
 }
