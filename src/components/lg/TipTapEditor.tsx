@@ -10,20 +10,21 @@ import { useDebounce } from './useDebounce'
 import { useMutation } from '@tanstack/react-query'
 import { NoteType } from '@/lib'
 import { Loader } from "lucide-react"
-
+import { noteActions, useAppDispatch } from '@/redux'
 
 type Props = { note: NoteType }
 
 const TipTapEditor = ({ note }: Props) => {
     const [editorState, setEditorState] = useState(note.editorState || `<h1>${note.name}</h1>`);
+    const dispatch = useAppDispatch()
 
     const saveNote = useMutation({
         mutationFn: async () => {
-            const response = await axios.post('/api/saveNote', {
+            note.id && await dispatch(noteActions.saveNoteById({
                 noteId: note.id,
                 editorState
-            });
-            return response.data;
+            }))
+            return 200
         }
     })
 
@@ -41,17 +42,13 @@ const TipTapEditor = ({ note }: Props) => {
 
     useEffect(() => {
         if (debounceEditorState === '') return;
-        saveNote.mutate(undefined, {
-            onSuccess: (data) => {
-                // console.log('Note saved', data)
-            },
+        if (editorState !== note.editorState) saveNote.mutate(undefined, {
             onError: (error) => {
                 console.error('Error saving note', error)
             }
         })
 
     }, [debounceEditorState])
-
 
     return (
         <>

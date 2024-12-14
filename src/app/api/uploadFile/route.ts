@@ -1,17 +1,17 @@
 import fs from "fs";
-import {NextResponse} from "next/server";
-import {v4 as uuidv4} from "uuid";
-import {join} from "path";
-import {eq} from "drizzle-orm";
-import {auth} from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import { v4 as uuidv4 } from "uuid";
+import { join } from "path";
+import { eq } from "drizzle-orm";
+import { auth } from "@clerk/nextjs/server";
 
-import {$notes, db} from "@/lib";
+import { $notes, db } from "@/lib";
 
 export async function POST(req: Request) {
-	const {userId} = auth();
+	const { userId } = auth();
 
 	if (!userId) {
-		return NextResponse.json({response: "Unauthenticated."}, {status: 403});
+		return NextResponse.json({ response: "Unauthenticated." }, { status: 403 });
 	}
 
 	// Get data | return 400, 415;
@@ -21,8 +21,8 @@ export async function POST(req: Request) {
 
 	if (!file || !noteId) {
 		return NextResponse.json(
-			{response: "Failed to upload file."},
-			{status: 400},
+			{ response: "Failed to upload file." },
+			{ status: 400 },
 		);
 	}
 
@@ -30,8 +30,8 @@ export async function POST(req: Request) {
 	const extension = mimeType.split("/")[1];
 	if (!["png", "jpg", "jpeg"].includes(extension)) {
 		return NextResponse.json(
-			{response: "Unsupported file type."},
-			{status: 415},
+			{ response: "Unsupported file type." },
+			{ status: 415 },
 		);
 	}
 
@@ -43,8 +43,8 @@ export async function POST(req: Request) {
 
 	if (notes.length == 0)
 		return NextResponse.json(
-			{response: "Note was not found"},
-			{status: 404},
+			{ response: "Note was not found" },
+			{ status: 404 },
 		);
 
 	const uniqueFileName = `${uuidv4()}.${extension}`;
@@ -59,8 +59,8 @@ export async function POST(req: Request) {
 				fs.unlink(uploadPath, (err) => {
 					if (err) {
 						return NextResponse.json(
-							{response: "Note image was not deleted."},
-							{status: 500},
+							{ response: "Note image was not deleted." },
+							{ status: 500 },
 						);
 					}
 				});
@@ -68,30 +68,28 @@ export async function POST(req: Request) {
 		});
 	}
 
-	fs.promises.mkdir(uploadDir, {recursive: true});
+	fs.promises.mkdir(uploadDir, { recursive: true });
 
 	const bytes = await file.arrayBuffer();
 	const buffer = Buffer.from(bytes);
 	const pathToSave = join(uploadDir, uniqueFileName);
 
-	fs.writeFileSync(pathToSave, buffer);
-
 	try {
-		fs.writeFileSync(pathToSave, buffer);
+		await fs.promises.writeFile(pathToSave, buffer);
 
 		await db
 			.update($notes)
-			.set({imageUrl: uniqueFileName})
+			.set({ imageUrl: uniqueFileName })
 			.where(eq($notes.id, parseInt(noteId)));
 
 		return NextResponse.json(
-			{response: "File uploaded successfully."},
-			{status: 201},
+			{ response: `${uniqueFileName}` },
+			{ status: 201 },
 		);
 	} catch (error) {
 		return NextResponse.json(
-			{response: "Failed to save file."},
-			{status: 500},
+			{ response: "Failed to save file." },
+			{ status: 500 },
 		);
 	}
 }

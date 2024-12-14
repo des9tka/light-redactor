@@ -1,10 +1,24 @@
-import Link from "next/link";
+"use client"
 import { ArrowBigRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { Button, TypeWriter } from "@/components";
+import { noteActions, useAppDispatch, useAppSelector } from "@/redux";
+import { useEffect } from "react";
 
 
 export default function Home() {
+
+    const { user } = useAppSelector(state => state.noteReducer);
+    const dispatch = useAppDispatch()
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!user) {
+            dispatch(noteActions.setUserInfo())
+        }
+    }, [])
+
     const mainTexts = [
         "Knowledge 🧠 is power, that must be written down.",
         "Write down your thoughts ⭐, and put them into action.",
@@ -19,12 +33,12 @@ export default function Home() {
                     <TypeWriter texts={mainTexts} />
                 </h2>
                 <div className="mt-8">
-                    <Link href="/dashboard">
+                    <div onClick={() => router.push('/dashboard')}>
                         <Button className="bg-purple-800 rounded text-white hover:text-purple-700 hover:bg-purple-100">
                             Get Started
                             <ArrowBigRight />
                         </Button>
-                    </Link>
+                    </div>
                 </div>
             </div>
         </div>

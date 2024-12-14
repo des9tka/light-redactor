@@ -10,7 +10,7 @@ const SubmitDialog = ({ openSubmit, setOpenSubmit, noteId }: { openSubmit: boole
     const router = useRouter();
 
     return (
-        <Dialog open={openSubmit}>
+        <Dialog open={openSubmit} onOpenChange={() => setOpenSubmit(false)}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle className='text-center'>

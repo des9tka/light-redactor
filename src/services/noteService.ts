@@ -1,17 +1,31 @@
-import {NoteType} from "@/lib";
-import {AxiosRes, axiosService} from "./axiosService";
+import { NoteType } from "@/lib";
+import { AxiosRes, axiosService } from "./axiosService";
 
-import { noteUrls } from "@/config/urls";
+import { noteUrls, DeleteNoteRequestType } from "@/config/urls";
 
 export interface SimplifiedClerkUser {
-    id: string;
-    firstName: string;
-    lastName: string;
+	id: string;
+	firstName: string;
+	lastName: string;
 }
-type CreateNoteType = {
+
+export type CreateNoteResponseType = {
 	noteId: number;
 	createdAt: Date;
 };
+
+export type CheckImageResponseType = {
+	isExist: boolean;
+};
+
+export type SaveNoteRequestType = {
+	noteId: number;
+	editorState: string;
+};
+
+export type SimpleNoteResponsetType = {
+	response: string
+}
 
 const noteService = {
 	getUserInfo: (): AxiosRes<SimplifiedClerkUser> =>
@@ -23,20 +37,20 @@ const noteService = {
 	getNoteById: (id: string): AxiosRes<NoteType> =>
 		axiosService.get(noteUrls.getNoteByIdUrl(id)),
 
-	createNote: (name: string): AxiosRes<CreateNoteType> =>
-		axiosService.post(noteUrls.createNoteUrl(), {name}),
+	createNote: (name: string): AxiosRes<CreateNoteResponseType> =>
+		axiosService.post(noteUrls.createNoteUrl(), { name }),
 
-	saveNote: (note: NoteType): AxiosRes<void> =>
-		axiosService.post(noteUrls.saveNoteUrl(), note),
+	saveNote: (noteInfo: SaveNoteRequestType): AxiosRes<void> =>
+		axiosService.post(noteUrls.saveNoteUrl(), noteInfo),
 
-	deleteNote: (id: number): AxiosRes<void> =>
-		axiosService.delete(noteUrls.deleteNoteUrl(id)),
+	deleteNote: (noteinfo: DeleteNoteRequestType): AxiosRes<SimpleNoteResponsetType> =>
+		axiosService.patch(noteUrls.deleteNoteUrl(noteinfo)),
 
-	uploadFile: (formData: FormData): AxiosRes<void> =>
+	uploadFile: (formData: FormData): AxiosRes<SimpleNoteResponsetType> =>
 		axiosService.post(noteUrls.uploadFileUrl(), formData),
 
-	checkImageUrl: (imageUrl: string): AxiosRes<void> =>
-		axiosService.post(noteUrls.checkImageUrl(imageUrl)),
+	checkImage: (imageUrl: string | null): AxiosRes<CheckImageResponseType> =>
+		axiosService.get(noteUrls.checkImageUrl(imageUrl ? imageUrl : 'url')),
 };
 
-export {noteService};
+export { noteService };

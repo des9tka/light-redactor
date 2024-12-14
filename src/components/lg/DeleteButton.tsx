@@ -1,30 +1,31 @@
 "use client"
 import React from 'react'
+import { useRouter } from 'next/navigation'
 
 import { Trash } from "lucide-react"
-import axios from 'axios'
+import { noteActions, useAppDispatch } from '@/redux'
 
-const DeleteButton = ({ noteId, noteImgUrl }: { noteId: string, noteImgUrl: string | null }) => {
+const DeleteButton = ({ noteId, noteImgUrl, push }: { noteId: string, noteImgUrl: string | null, push: boolean }) => {
+
+    const dispatch = useAppDispatch();
+    const router = useRouter()
 
     const deleteNote = async () => {
         const dataUrl = noteImgUrl ? noteImgUrl : 'null';
-        const noteIdParsed = noteId.toString();
+        const noteIdParsed = parseInt(noteId);
 
         const data = {
             noteImgUrl: dataUrl,
-            noteId :noteIdParsed
+            noteId: noteIdParsed
         }
 
-        const res = await axios.patch("/api/deleteNote", data);
-
-        alert(res.data.response);
-
-        if (res.status === 200) window.location.assign('/dashboard');
+        await dispatch(noteActions.deleteNoteById(data))
+        if (push) router.push('/dashboard')
     }
 
     return (
-        <button onClick={deleteNote} className='bg-red-500 h-10 w-10 rounded flex justify-center items-center hover:-translate-y-1 transition'>
-            <Trash className='text-white hover:-translate-y-1 transition' />
+        <button onClick={deleteNote} className={`bg-red-500 rounded flex justify-center items-center hover:-translate-y-1 transition ${push ? 'h-10 w-10' : 'h-6 w-6'}`}>
+            <Trash className={`text-white ${push ? '' : 'h-5 w-5'}`} />
         </button>
     )
 }

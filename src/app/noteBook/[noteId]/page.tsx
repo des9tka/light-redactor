@@ -1,7 +1,5 @@
 "use client"
-
-import Link from 'next/link'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ArrowLeftSquare, FileWarningIcon, Loader } from 'lucide-react'
 import { useRouter } from "next/navigation"
 
@@ -18,16 +16,19 @@ type Props = {
 function NoteBook({ params: { noteId } }: Props) {
 
     const { user, note, errors, loading } = useAppSelector(state => state.noteReducer);
+    const [rendered, setRendered] = useState(false);
     const dispatch = useAppDispatch();
     const router = useRouter();
 
     useEffect(() => {
-        if (!note || parseInt(noteId) !== note.id) {
-            console.log('Load note from server!!!');
-            dispatch(noteActions.getNoteById(noteId));
+        if (!user) dispatch(noteActions.setUserInfo())
+        if (!rendered || !note || parseInt(noteId) !== note.id) {
+            dispatch(noteActions.getStateNoteById({ noteId }));
+            setRendered(true);
         }
+        if (!note && rendered) dispatch(noteActions.getNoteById(noteId));
+    }, [rendered])
 
-    }, [])
 
     const nameExp = (user?.firstName ? user?.firstName : "") + (user?.lastName ? user?.lastName : "")
 
@@ -76,15 +77,15 @@ function NoteBook({ params: { noteId } }: Props) {
                 </div>
             )}
 
-            {(note && !loading && !errors) && (
+            {(note && !loading && !errors && rendered) && (
                 <div className='lg:w-[50%] md:w-[75%] w-[100%] h-full'>
 
                     <div className='mb-2 shadow-xl flex justify-between h-[15%] items-center p-4'>
                         <div className='flex'>
-                            <Link href={'/dashboard'} className='font-semibold h-[40px] flex justify-center items-center p-2 rounded shadow-2xl bg-purple-700 text-white hover:text-purple-700 hover:bg-purple-100'>
+                            <div onClick={() => router.push('/dashboard')} className='font-semibold h-[40px] flex justify-center items-center p-2 rounded shadow-2xl bg-purple-700 text-white hover:text-purple-700 hover:bg-purple-100'>
                                 <ArrowLeftSquare className='hidden md:flex lg:flex mr-1' />
                                 Back
-                            </Link>
+                            </div>
 
                             <div className='font-bold ml-2 text-xl flex justify-center text-center items-center'>
                                 <span className='text-lg'>{userName}</span>
@@ -97,7 +98,7 @@ function NoteBook({ params: { noteId } }: Props) {
                             </div>
 
                         </div>
-                        <DeleteButton noteId={noteId} noteImgUrl={note.imageUrl || null} />
+                        <DeleteButton noteId={noteId} noteImgUrl={note.imageUrl || null} push={true} />
                     </div>
 
                     {/* EDITOR */}

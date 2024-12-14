@@ -2,9 +2,9 @@
 import { useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { Plus, Loader } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 import { Input, Button, Dialog, DialogHeader, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components"
-import { useRouter } from "next/navigation"
 import { noteActions, useAppDispatch } from "@/redux"
 
 
@@ -48,7 +48,7 @@ function CreateNoteDialog({ openSubmit, setOpenSubmit }: { openSubmit: boolean, 
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger className="border w-[100%] h-[75%] border-dashed border-purple-500 rounded-lg items-center justify-center hover:shadow-xl transition hover:-translate-y-1 flex-row p-4">
+            <DialogTrigger className="border w-[100%] h-[100%] border-dashed border-purple-500 rounded-lg items-center justify-center hover:shadow-xl transition hover:-translate-y-1 flex-row p-4">
                 <h2 className="flex text-purple-500 font-extrabold justify-center items-center content-center h-14">
                     <Plus className="w-5 h-5 mt-0.5" strokeWidth={3} />
                     New NoteBook

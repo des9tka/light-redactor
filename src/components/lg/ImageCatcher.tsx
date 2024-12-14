@@ -1,20 +1,12 @@
 "use client"
+import React from 'react'
+
 import { NoteType } from '@/lib';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react'
+import { noteActions, useAppDispatch } from '@/redux';
 
 const ImageCatcher = ({ note, userId }: { note: NoteType, userId: string }) => {
 
-    const [isExist, setIsExist] = useState(false);
-
-    useEffect(() => {
-        const checkImage = async () => {
-            const res = await fetch(`/api/checkImage?imageUrl=${note.imageUrl}`);
-            const { isExist: exist } = await res.json();
-            setIsExist(exist);
-        }
-        checkImage();
-    }, [])
+    const dispatch = useAppDispatch()
 
     const handleFileChange = async (e: any) => {
         if (e.target.files && e.target.files[0]) {
@@ -23,12 +15,7 @@ const ImageCatcher = ({ note, userId }: { note: NoteType, userId: string }) => {
             formData.append("file", file);
             formData.append("noteId", `${note.id}`);
 
-            try {
-                const res = await axios.post("/api/uploadFile", formData);
-                alert(res.data.response);
-            } catch (error: any) {
-                alert("Failed to upload file: " + error.message);
-            }
+            dispatch(noteActions.uploadFileNote(formData))
         }
     };
 
@@ -39,7 +26,7 @@ const ImageCatcher = ({ note, userId }: { note: NoteType, userId: string }) => {
 
     return (
         <div className='justify-center flex'>
-            <img className="h-[100%]" src={(!note.imageUrl || !isExist || !userId) ? '/notesImages/note.png' : `/notesImages/${userId}/${note.imageUrl}`} alt={note.name} onClick={() => imageClick()} />
+            <img className="md:h-[100px] xs:h-[100px] lg:h-[150px]" src={(!note.imageUrl) ? '/notesImages/note.png' : `/notesImages/${userId}/${note.imageUrl}`} alt={note.name} onClick={() => imageClick()} />
             <input
                 type="file"
                 id='inputFile'

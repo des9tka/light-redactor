@@ -15,12 +15,12 @@ const Notes = () => {
 
     useEffect(() => {
         if (notes.length == 0) dispatch(noteActions.getAllNotes());
-        setRendered(true);        
-    }, [])
+        setRendered(true);
+    }, [])    
 
     return (
         <div>
-            {errors && <div>Error: {errors}</div>}
+            {errors && <div>Error: {JSON.stringify(errors)}</div>}
             {loading && <div className='text-center w-full flex justify-center font-semibold mt-10'>Loading...<Loader className='animate-spin' /></div>}
             {!loading && rendered && <div className='grid grid-cols-1 sm:grid-cols-2 xs:m-10 md:grid-cols-4 gap-2 mt-4'>
 
